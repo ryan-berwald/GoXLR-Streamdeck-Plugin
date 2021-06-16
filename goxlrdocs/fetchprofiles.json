@@ -1,0 +1,5 @@
+{
+    "action": "com.tchelicon.goxlr.profilechange",
+    "context": "ws://0.0.0.0:6805",
+    "event": "propertyInspectorDidAppear"
+}

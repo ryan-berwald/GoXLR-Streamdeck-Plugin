@@ -23,9 +23,9 @@
   },
   "scripts": {
     "start": "craco start",
-     "build": "craco build",
-     "test": "craco test",
-     "estart": "electron .",
+    "build": "craco build",
+    "test": "craco test",
+    "estart": "electron .",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

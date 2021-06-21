@@ -11,10 +11,6 @@ ReactDOM.render(
         <Card />
       </div>
       <div></div>
-      <div></div>
-      <div className="p-5">
-        <Card />
-      </div>
     </div>
   </React.StrictMode>,
   document.getElementById("root")

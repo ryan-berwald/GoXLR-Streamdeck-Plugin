@@ -73,3 +73,5 @@ fs.readdir("C:\\Users\\Ryan\\Documents\\goxlr\\profiles", (err, files) => {
     console.log(file);
   });
 });
+
+console.log(server.address());

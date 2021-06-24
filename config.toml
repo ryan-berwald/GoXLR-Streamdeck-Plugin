@@ -5,10 +5,10 @@
 
 title = "GoXLR Streamdeck Emulator"
 
-[server]
+[Server]
 GoXLRAddress="ws://localhost:6805/?GoXLRApp"
 ClientAddress="ws://localhost:6805/client="
 
 [Hotkeys]
-keys=["F12", "CTRL + B"]
+keys=["F13", "CTRL + B"]
 profiles=["Desk", "Gae"] 

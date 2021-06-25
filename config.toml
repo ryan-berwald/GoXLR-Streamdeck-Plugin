@@ -11,4 +11,4 @@ ClientAddress="ws://localhost:6805/client="
 
 [Hotkeys]
 keys=["F13", "CTRL + B"]
-profiles=["Desk", "Gae"] 
+profiles=["Desk", "Game"] 

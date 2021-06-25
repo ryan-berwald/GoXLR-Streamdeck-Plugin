@@ -68,7 +68,9 @@ server.on("upgrade", (request, socket, head) => {
   }
 });
 
-fs.readdir("C:\\Users\\Ryan\\Documents\\goxlr\\profiles", (err, files) => {
+const homedir = require('os').homedir();
+console.log(homedir);
+fs.readdir(`${homedir}\\Documents\\goxlr\\profiles`, (err, files) => {
   files.forEach((file) => {
     console.log(file);
   });

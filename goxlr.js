@@ -1,18 +1,13 @@
-const express = require("express"); //endpoint
+const http = require("http");
 const ws = require("ws"); //websocket
-const winston = require('winston');
-
+const pino = require("pino");
 const PORT = 6805;
 
 //create logger that prints out to a file named server.log
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json,
-  defaultMeta: { service: 'user-service' },
-  transports: [
-    new winston.transports.File({ filename: './logs/server.log' }),
-  ],
-});
+const logger = pino(
+  { level: process.env.LOG_LEVEL || "info" },
+  pino.destination("./logs/server.log")
+);
 
 const changeprofile = require("./goxlrdocs/changeprofile.json");
 const fetchprofiles = require("./goxlrdocs/fetchprofiles.json");
@@ -20,15 +15,13 @@ const fetchprofiles = require("./goxlrdocs/fetchprofiles.json");
 let goXLRSocket;
 
 const { URL } = require("url");
-const app = express();
+const server = http.createServer();
 // Set up a headless websocket server 
 const wsServer = new ws.Server({
   noServer: true,
 });
 
-const wss2 = new ws.Server({
-  noServer: true
-});
+const wss2 = new ws.Server({ noServer: true });
 
 //Command emmitter to GoXLR
 wsServer.on("connection", (socket) => {
@@ -47,7 +40,7 @@ wss2.on("connection", (socket) => {
         try {
           goXLRSocket.send(JSON.stringify(fetchprofiles));
         }
-        catch (err) {
+        catch(err){
           logger.error("GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp")
           logger.error(err);
         }
@@ -61,9 +54,9 @@ wss2.on("connection", (socket) => {
         );
 
         logger.info("Sending: " + JSON.stringify(changeprofile));
-        try {
+        try{
           goXLRSocket.send(JSON.stringify(changeprofile));
-        } catch (err) {
+        } catch(err){
           logger.error("GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp")
           logger.error(err);
           break;
@@ -79,9 +72,9 @@ wss2.on("connection", (socket) => {
 // `server` is a vanilla Node.js HTTP server, so use
 // the same ws upgrade process described here:
 // https://www.npmjs.com/package/ws#multiple-servers-sharing-a-single-https-server
-const server = app.listen(6805);
 server.on("upgrade", (request, socket, head) => {
-  console.log("Started");
+  logger.info("Listening on: " + PORT);
+
   const pathname = request.url;
   if (pathname === "/?GOXLRApp") {
     wsServer.handleUpgrade(request, socket, head, (socket) => {
@@ -93,4 +86,6 @@ server.on("upgrade", (request, socket, head) => {
     });
   }
 });
+
+server.listen(6805);
 

@@ -1,12 +1,7 @@
 const http = require("http");
 const ws = require("ws"); //websocket
-<<<<<<< HEAD
 const pino = require("pino");
 const PORT = 6805;
-=======
-const http = require("http");
-const pino = require("pino");
->>>>>>> f5d1aa6bded3cee4f8bd381fd3bbc6c087941d38
 
 //create logger that prints out to a file named server.log
 const logger = pino(
@@ -19,7 +14,6 @@ const fetchprofiles = require("./goxlrdocs/fetchprofiles.json");
 
 let goXLRSocket;
 
-<<<<<<< HEAD
 const { URL } = require("url");
 const server = http.createServer();
 // Set up a headless websocket server 
@@ -28,17 +22,6 @@ const wsServer = new ws.Server({
 });
 
 const wss2 = new ws.Server({ noServer: true });
-=======
-const server = http.createServer();
-// Set up a headless websocket server
-const ws1 = new ws.Server({
-  noServer: true,
-});
-
-const ws2 = new ws.Server({
-  noServer: true,
-});
->>>>>>> f5d1aa6bded3cee4f8bd381fd3bbc6c087941d38
 
 //Command emmitter to GoXLR
 ws1.on("connection", (socket) => {
@@ -56,16 +39,9 @@ ws2.on("connection", (socket) => {
         logger.info("Got fetch message!");
         try {
           goXLRSocket.send(JSON.stringify(fetchprofiles));
-<<<<<<< HEAD
         }
         catch(err){
           logger.error("GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp")
-=======
-        } catch (err) {
-          logger.error(
-            "GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp"
-          );
->>>>>>> f5d1aa6bded3cee4f8bd381fd3bbc6c087941d38
           logger.error(err);
         }
         goXLRSocket.on("message", (xlrMessage) => {
@@ -80,15 +56,8 @@ ws2.on("connection", (socket) => {
         logger.info("Sending: " + JSON.stringify(changeprofile));
         try{
           goXLRSocket.send(JSON.stringify(changeprofile));
-<<<<<<< HEAD
         } catch(err){
           logger.error("GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp")
-=======
-        } catch (err) {
-          logger.error(
-            "GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp"
-          );
->>>>>>> f5d1aa6bded3cee4f8bd381fd3bbc6c087941d38
           logger.error(err);
           break;
         }
@@ -119,7 +88,3 @@ server.on("upgrade", (request, socket, head) => {
 });
 
 server.listen(6805);
-<<<<<<< HEAD
-
-=======
->>>>>>> f5d1aa6bded3cee4f8bd381fd3bbc6c087941d38

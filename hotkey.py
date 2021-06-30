@@ -5,7 +5,7 @@ from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler 
 import threading
 import logging
-from subprocess import call
+import subprocess
 from infi.systray import SysTrayIcon
 from config_class import config
 from sys import exit as ex
@@ -16,8 +16,9 @@ from sys import exit as ex
 logging.basicConfig(format='%(asctime)s - %(process)d - %(levelname)s - %(message)s', level=logging.INFO, datefmt='%d-%b-%y %H:%M:%S', filename='./logs/app.log', filemode='w')    
 logger = logging.getLogger()
 
-def keyPress(profile):
-    logger.info(f'hotkey pressed {profile}')
+def keyPress(profile, keys):
+    print("hotkey pressed")
+    logger.info(f'hotkey pressed {profile}; {keys}')
     try:
         ws = websocket.WebSocket()
         try:
@@ -26,7 +27,7 @@ def keyPress(profile):
             logger.error(e)
         logger.info(f'Sending profile change request {profile}')
         ws.send(f'changeprofile={profile}')
-        logger.info(ws.recv())
+        #logger.info(ws.recv())
     except Exception as e:
         logger.error(e)
     finally:
@@ -46,9 +47,9 @@ def verifyConnection(systray):
         logger.error(e)
 
 def startServer():
-    call('node ./goxlr.js', shell=False)
     print("server started")
-
+    subprocess.call('node ./goxlr.js', shell=False)
+    
 def observe():
     event_handler = Event()
     observer = Observer()
@@ -65,16 +66,18 @@ def main():
         obsThread.daemon = True
         obsThread.start()
         #Try to start websocket server
-        nodeThread = threading.Thread(target=startServer, daemon=True)
         print("starting server...")
+        nodeThread = threading.Thread(target=startServer, daemon=True)
         nodeThread.start()
         logger.info("Listening for hotkeys...")
         print("Press ESC to stop.")
-        keyboard.wait('esc')        
+        keyboard.wait()        
     except KeyboardInterrupt as e:
         logger.error(e)       
     finally:
         systray.shutdown()
+        nodeThread.join(3)
+        obsThread.join(3)
         ex("exiting")    
 
 if __name__ == "__main__":

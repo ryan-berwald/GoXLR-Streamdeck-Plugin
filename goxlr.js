@@ -1,5 +1,6 @@
 const http = require("http");
 const ws = require("ws"); //websocket
+const fs = require('fs');
 const pino = require("pino");
 const PORT = 6805;
 
@@ -9,6 +10,8 @@ const logger = pino(
   pino.destination("./logs/server.log")
 );
 
+fs.truncate('./logs/server.log', 0, function(){console.log('done')})
+
 const changeprofile = require("./goxlrdocs/changeprofile.json");
 const fetchprofiles = require("./goxlrdocs/fetchprofiles.json");
 
@@ -17,11 +20,11 @@ let goXLRSocket;
 const { URL } = require("url");
 const server = http.createServer();
 // Set up a headless websocket server 
-const wsServer = new ws.Server({
+const ws1 = new ws.Server({
   noServer: true,
 });
 
-const wss2 = new ws.Server({ noServer: true });
+const ws2 = new ws.Server({ noServer: true });
 
 //Command emmitter to GoXLR
 ws1.on("connection", (socket) => {
@@ -39,14 +42,15 @@ ws2.on("connection", (socket) => {
         logger.info("Got fetch message!");
         try {
           goXLRSocket.send(JSON.stringify(fetchprofiles));
+          goXLRSocket.on("message", (xlrMessage) => {
+            socket.send(JSON.stringify(xlrMessage));
+          });
         }
         catch(err){
           logger.error("GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp")
           logger.error(err);
         }
-        goXLRSocket.on("message", (xlrMessage) => {
-          socket.send(JSON.stringify(xlrMessage));
-        });
+        
       case "changeprofile":
         logger.info("Got change profile message!");
         changeprofile.payload.settings.SelectedProfile = message.substr(
@@ -58,7 +62,6 @@ ws2.on("connection", (socket) => {
           goXLRSocket.send(JSON.stringify(changeprofile));
         } catch(err){
           logger.error("GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp")
-          logger.error(err);
           break;
         }
         goXLRSocket.on("message", (xlrMessage) => {
@@ -86,5 +89,5 @@ server.on("upgrade", (request, socket, head) => {
     });
   }
 });
-
 server.listen(6805);
+//server.close((err) => console.log(err));

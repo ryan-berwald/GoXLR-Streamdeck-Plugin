@@ -32,7 +32,6 @@ def keyPress(profile):
     finally:
         ws.close()
 
-
 conf = config(keyPress, "./config.toml")
 
 class Event(LoggingEventHandler):
@@ -49,7 +48,6 @@ def verifyConnection(systray):
 def startServer():
     call('node ./goxlr.js', shell=False)
     print("server started")
-
 
 def observe():
     event_handler = Event()
@@ -77,7 +75,9 @@ def main():
         logger.error(e)       
     finally:
         systray.shutdown()
-        ex("exiting")
+        ex("exiting")    
 
-main()
+if __name__ == "__main__":
+    main()
+
 

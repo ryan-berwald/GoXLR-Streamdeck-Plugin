@@ -1,7 +1,12 @@
 const http = require("http");
 const ws = require("ws"); //websocket
+<<<<<<< HEAD
 const pino = require("pino");
 const PORT = 6805;
+=======
+const http = require("http");
+const pino = require("pino");
+>>>>>>> f5d1aa6bded3cee4f8bd381fd3bbc6c087941d38
 
 //create logger that prints out to a file named server.log
 const logger = pino(
@@ -14,6 +19,7 @@ const fetchprofiles = require("./goxlrdocs/fetchprofiles.json");
 
 let goXLRSocket;
 
+<<<<<<< HEAD
 const { URL } = require("url");
 const server = http.createServer();
 // Set up a headless websocket server 
@@ -22,15 +28,26 @@ const wsServer = new ws.Server({
 });
 
 const wss2 = new ws.Server({ noServer: true });
+=======
+const server = http.createServer();
+// Set up a headless websocket server
+const ws1 = new ws.Server({
+  noServer: true,
+});
+
+const ws2 = new ws.Server({
+  noServer: true,
+});
+>>>>>>> f5d1aa6bded3cee4f8bd381fd3bbc6c087941d38
 
 //Command emmitter to GoXLR
-wsServer.on("connection", (socket) => {
+ws1.on("connection", (socket) => {
   goXLRSocket = socket;
-  logger.info("GoXLR Connected.")
+  logger.info("GoXLR Connected.");
 });
 
 //Client websocket
-wss2.on("connection", (socket) => {
+ws2.on("connection", (socket) => {
   logger.info("Client Connected!");
   socket.on("message", (message) => {
     logger.info(message);
@@ -39,9 +56,16 @@ wss2.on("connection", (socket) => {
         logger.info("Got fetch message!");
         try {
           goXLRSocket.send(JSON.stringify(fetchprofiles));
+<<<<<<< HEAD
         }
         catch(err){
           logger.error("GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp")
+=======
+        } catch (err) {
+          logger.error(
+            "GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp"
+          );
+>>>>>>> f5d1aa6bded3cee4f8bd381fd3bbc6c087941d38
           logger.error(err);
         }
         goXLRSocket.on("message", (xlrMessage) => {
@@ -56,8 +80,15 @@ wss2.on("connection", (socket) => {
         logger.info("Sending: " + JSON.stringify(changeprofile));
         try{
           goXLRSocket.send(JSON.stringify(changeprofile));
+<<<<<<< HEAD
         } catch(err){
           logger.error("GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp")
+=======
+        } catch (err) {
+          logger.error(
+            "GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp"
+          );
+>>>>>>> f5d1aa6bded3cee4f8bd381fd3bbc6c087941d38
           logger.error(err);
           break;
         }
@@ -77,15 +108,18 @@ server.on("upgrade", (request, socket, head) => {
 
   const pathname = request.url;
   if (pathname === "/?GOXLRApp") {
-    wsServer.handleUpgrade(request, socket, head, (socket) => {
-      wsServer.emit("connection", socket, request);
+    ws1.handleUpgrade(request, socket, head, (socket) => {
+      ws1.emit("connection", socket, request);
     });
   } else if (pathname === "/client") {
-    wss2.handleUpgrade(request, socket, head, function done(ws) {
-      wss2.emit("connection", ws, request);
+    ws2.handleUpgrade(request, socket, head, function done(ws) {
+      ws2.emit("connection", ws, request);
     });
   }
 });
 
 server.listen(6805);
+<<<<<<< HEAD
 
+=======
+>>>>>>> f5d1aa6bded3cee4f8bd381fd3bbc6c087941d38

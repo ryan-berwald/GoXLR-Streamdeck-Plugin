@@ -1,6 +1,18 @@
 const express = require("express"); //endpoint
 const ws = require("ws"); //websocket
-const fs = require("fs"); //read file sys
+const winston = require('winston');
+
+const PORT = 6805;
+
+//create logger that prints out to a file named server.log
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json,
+  defaultMeta: { service: 'user-service' },
+  transports: [
+    new winston.transports.File({ filename: './logs/server.log' }),
+  ],
+});
 
 const changeprofile = require("./goxlrdocs/changeprofile.json");
 const fetchprofiles = require("./goxlrdocs/fetchprofiles.json");
@@ -9,40 +21,53 @@ let goXLRSocket;
 
 const { URL } = require("url");
 const app = express();
-// Set up a headless websocket server that prints any
-// events that come in.
+// Set up a headless websocket server 
 const wsServer = new ws.Server({
   noServer: true,
 });
 
-const wss2 = new ws.Server({ noServer: true });
+const wss2 = new ws.Server({
+  noServer: true
+});
 
 //Command emmitter to GoXLR
 wsServer.on("connection", (socket) => {
   goXLRSocket = socket;
-  console.log("GoXLR Connected!");
+  logger.info("GoXLR Connected.")
 });
 
 //Client websocket
 wss2.on("connection", (socket) => {
-  console.log("Client Connected!");
+  logger.info("Client Connected!");
   socket.on("message", (message) => {
-    console.log(message.toLowerCase().substr(0, message.indexOf("=")));
+    logger.info(message);
     switch (message.toLowerCase().substr(0, message.indexOf("="))) {
       case "fetchprofiles":
-        console.log("Got fetch message!");
-        goXLRSocket.send(JSON.stringify(fetchprofiles));
+        logger.info("Got fetch message!");
+        try {
+          goXLRSocket.send(JSON.stringify(fetchprofiles));
+        }
+        catch (err) {
+          logger.error("GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp")
+          logger.error(err);
+        }
         goXLRSocket.on("message", (xlrMessage) => {
           socket.send(JSON.stringify(xlrMessage));
         });
       case "changeprofile":
-        console.log("Got change profile message!");
+        logger.info("Got change profile message!");
         changeprofile.payload.settings.SelectedProfile = message.substr(
           message.indexOf("=") + 1
         );
 
-        console.log("Sending: " + JSON.stringify(changeprofile));
-        goXLRSocket.send(JSON.stringify(changeprofile));
+        logger.info("Sending: " + JSON.stringify(changeprofile));
+        try {
+          goXLRSocket.send(JSON.stringify(changeprofile));
+        } catch (err) {
+          logger.error("GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp")
+          logger.error(err);
+          break;
+        }
         goXLRSocket.on("message", (xlrMessage) => {
           console.log("received: " + xlrMessage);
           socket.send(JSON.stringify(xlrMessage));
@@ -56,6 +81,7 @@ wss2.on("connection", (socket) => {
 // https://www.npmjs.com/package/ws#multiple-servers-sharing-a-single-https-server
 const server = app.listen(6805);
 server.on("upgrade", (request, socket, head) => {
+  console.log("Started");
   const pathname = request.url;
   if (pathname === "/?GOXLRApp") {
     wsServer.handleUpgrade(request, socket, head, (socket) => {
@@ -68,12 +94,3 @@ server.on("upgrade", (request, socket, head) => {
   }
 });
 
-const homedir = require('os').homedir();
-console.log(homedir);
-fs.readdir(`${homedir}\\Documents\\goxlr\\profiles`, (err, files) => {
-  files.forEach((file) => {
-    console.log(file);
-  });
-});
-
-console.log(server.address());

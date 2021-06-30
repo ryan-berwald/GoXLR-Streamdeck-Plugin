@@ -20,14 +20,11 @@ class config:
         except FileNotFoundError as e:
             logging.getLogger().error(e)
             raise e
-            
         self.rawfile = self.configFile["Hotkeys"]
         print(self.rawfile)
         self.keys = self.rawfile["keys"]
         self.profiles = self.rawfile["profiles"]
-        
+        print(self.keys)
+        print(self.profiles)
         for x in range(len(self.keys)):
-            keyboard.add_hotkey(self.keys[x], lambda: self.hotkeyFunc(self.profiles[x])) #<-- attach the function to hot-key
-            
-        
-    
+            keyboard.add_hotkey(self.keys[x], self.hotkeyFunc, args=(self.profiles[x], self.keys[x])) #<-- attach the function to hot-key    

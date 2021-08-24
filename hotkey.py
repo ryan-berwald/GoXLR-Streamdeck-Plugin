@@ -9,13 +9,20 @@ import subprocess
 from infi.systray import SysTrayIcon
 from config_class import config
 from sys import exit as ex
+from os import mkdir, path
+from pathlib import Path
 
-
+goXlrDir = str(Path.home()) + '\\Documents\\GoXLRPlugin\\'
 #Setup logger with format 
 # DATE TIME - PID - LogLevel - Message
-logging.basicConfig(format='%(asctime)s - %(process)d - %(levelname)s - %(message)s', level=logging.INFO, datefmt='%d-%b-%y %H:%M:%S', filename='./logs/app.log', filemode='w')    
-logger = logging.getLogger()
-
+try:
+    logging.basicConfig(format='%(asctime)s - %(process)d - %(levelname)s - %(message)s', level=logging.INFO, datefmt='%d-%b-%y %H:%M:%S', filename=goXlrDir + '\\logs\\app.log', filemode='w')    
+except FileNotFoundError:
+    mkdir(goXlrDir + '\\Documents\\GoXLRPlugin\\logs')
+    logging.basicConfig(format='%(asctime)s - %(process)d - %(levelname)s - %(message)s', level=logging.INFO, datefmt='%d-%b-%y %H:%M:%S', filename=goXlrDir + '\\logs\\app.log', filemode='w')    
+finally:
+    logger = logging.getLogger()
+    
 def keyPress(profile, keys):
     print("hotkey pressed")
     logger.info(f'hotkey pressed {profile}; {keys}')
@@ -33,11 +40,11 @@ def keyPress(profile, keys):
     finally:
         ws.close()
 
-conf = config(keyPress, "./config.toml")
+conf = config(keyPress, goXlrDir + '\\config.toml')
 
 class Event(LoggingEventHandler):
     def dispatch(self, event):
-        if event.src_path == ".\config.toml" and event.event_type == "modified":
+        if event.src_path == goXlrDir + "\\config.toml" and event.event_type == "modified":
                 conf.loadConfig()
 
 def verifyConnection(systray):
@@ -58,8 +65,8 @@ def observe():
     
 def main():
     try:
-        menu_options = (("Verify Connection", None, verifyConnection),("Reload Config", None, config.loadConfig), ("Exit", None, exit))
-        systray = SysTrayIcon("./icon.ico", "Example tray icon", menu_options)
+        menu_options = (("Verify Connection", None, verifyConnection),("Reload Config", None, config.loadConfig))
+        systray = SysTrayIcon("./Assets/icon.ico", "Example tray icon", menu_options, on_quit=ex)
         systray.start()
         logger.info("Created system tray.")
         obsThread = threading.Thread(target=observe)

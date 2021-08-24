@@ -1,0 +1,9 @@
+{
+    "action": "com.tchelicon.goxlr.profilechange",
+    "event": "keyUp",
+    "payload": {
+        "settings": {
+            "SelectedProfile": "Gaming.goxlr"
+        }
+    }
+}

@@ -1,16 +1,18 @@
 const http = require("http");
 const ws = require("ws"); //websocket
-const fs = require('fs');
+const fs = require("fs");
 const pino = require("pino");
 const PORT = 6805;
-
+const logdir = require("os").homedir() + "/logs";
 //create logger that prints out to a file named server.log
 const logger = pino(
   { level: process.env.LOG_LEVEL || "info" },
-  pino.destination("./logs/server.log")
+  pino.destination(logdir + "server.log")
 );
 
-fs.truncate('./logs/server.log', 0, function(){console.log('done')})
+fs.truncate(logdir + "/server.log", 0, function () {
+  console.log("file reset");
+});
 
 const changeprofile = require("./goxlrdocs/changeprofile.json");
 const fetchprofiles = require("./goxlrdocs/fetchprofiles.json");
@@ -19,7 +21,7 @@ let goXLRSocket;
 
 const { URL } = require("url");
 const server = http.createServer();
-// Set up a headless websocket server 
+// Set up a headless websocket server
 const ws1 = new ws.Server({
   noServer: true,
 });
@@ -45,12 +47,13 @@ ws2.on("connection", (socket) => {
           goXLRSocket.on("message", (xlrMessage) => {
             socket.send(JSON.stringify(xlrMessage));
           });
-        }
-        catch(err){
-          logger.error("GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp")
+        } catch (err) {
+          logger.error(
+            "GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp"
+          );
           logger.error(err);
         }
-        
+
       case "changeprofile":
         logger.info("Got change profile message!");
         changeprofile.payload.settings.SelectedProfile = message.substr(
@@ -58,10 +61,12 @@ ws2.on("connection", (socket) => {
         );
 
         logger.info("Sending: " + JSON.stringify(changeprofile));
-        try{
+        try {
           goXLRSocket.send(JSON.stringify(changeprofile));
-        } catch(err){
-          logger.error("GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp")
+        } catch (err) {
+          logger.error(
+            "GoXLR not connected to websocket at ws://0.0.0.0:6805/?GoXLRApp"
+          );
           break;
         }
         goXLRSocket.on("message", (xlrMessage) => {

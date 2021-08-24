@@ -1,1 +1,1 @@
-pyinstaller --onedir .\hotkey.py --hidden-import inif.systray --hidden-import setuptools --add-data "./goxlr.js;." --add-data "./goxlrdocs;./goxlrdocs" -y
+pyinstaller --onedir .\hotkey.py --hidden-import inif.systray --hidden-import setuptools --add-data "./goxlr.js;." --add-data "./goxlrdocs;./goxlrdocs" --add-data "./Assets;./Assets" -y

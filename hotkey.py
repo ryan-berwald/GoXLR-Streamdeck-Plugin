@@ -1,25 +1,26 @@
-from time import sleep
-import keyboard
 import websocket
 from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler 
 import threading
 import logging
-import subprocess
-from infi.systray import SysTrayIcon
+from subprocess import Popen, PIPE
 from config_class import config
 from sys import exit as ex
 from os import mkdir, path
 from pathlib import Path
+from ui import userInterface
+from shutil import which
 
 goXlrDir = str(Path.home()) + '\\Documents\\GoXLRPlugin\\'
 #Setup logger with format 
 # DATE TIME - PID - LogLevel - Message
 try:
-    logging.basicConfig(format='%(asctime)s - %(process)d - %(levelname)s - %(message)s', level=logging.INFO, datefmt='%d-%b-%y %H:%M:%S', filename=goXlrDir + '\\logs\\app.log', filemode='w')    
+    logging.basicConfig(format='%(asctime)s - %(process)d - %(levelname)s - %(message)s', level=logging.INFO, datefmt='%d-%b-%y %H:%M:%S', filename=goXlrDir + 'logs\\app.log', filemode='w')    
 except FileNotFoundError:
-    mkdir(goXlrDir + '\\Documents\\GoXLRPlugin\\logs')
-    logging.basicConfig(format='%(asctime)s - %(process)d - %(levelname)s - %(message)s', level=logging.INFO, datefmt='%d-%b-%y %H:%M:%S', filename=goXlrDir + '\\logs\\app.log', filemode='w')    
+    if not path.isdir(goXlrDir):
+        mkdir(goXlrDir)
+    mkdir(goXlrDir + 'logs')
+    logging.basicConfig(format='%(asctime)s - %(process)d - %(levelname)s - %(message)s', level=logging.INFO, datefmt='%d-%b-%y %H:%M:%S', filename=goXlrDir + 'logs\\app.log', filemode='w')    
 finally:
     logger = logging.getLogger()
     
@@ -40,11 +41,30 @@ def keyPress(profile, keys):
     finally:
         ws.close()
 
-conf = config(keyPress, goXlrDir + '\\config.toml')
+try:
+    conf = config(keyPress, goXlrDir + 'config.toml')
+except FileNotFoundError:
+    with open(goXlrDir + 'config.toml', 'w') as file:
+        file.write("""# Define keys to be pressed in parallel array with profiles.
+# ex. keys=["F1", "F2"]
+#     profiles=["profile1", "profile2"]\n
+# This will set profile1 when you press F1 and set profile2 when press F2
+
+title = "GoXLR Streamdeck Emulator"\n
+
+[Server]
+GoXLRAddress="ws://localhost:6805/?GoXLRApp"
+ClientAddress="ws://localhost:6805/client="
+
+[Hotkeys]
+keys=["F13", "CTRL + B"]
+profiles=["Desk", "Game"] 
+""")
+    conf = config(keyPress, goXlrDir + 'config.toml')
 
 class Event(LoggingEventHandler):
     def dispatch(self, event):
-        if event.src_path == goXlrDir + "\\config.toml" and event.event_type == "modified":
+        if event.src_path == goXlrDir + "config.toml" and event.event_type == "modified":
                 conf.loadConfig()
 
 def verifyConnection(systray):
@@ -54,8 +74,12 @@ def verifyConnection(systray):
         logger.error(e)
 
 def startServer():
-    print("server started")
-    subprocess.call('node ./goxlr.js', shell=False)
+    try:
+        process = Popen([which("node"), 'C:\\Users\\Ryan\\Documents\\GoXLR-Streamdeck-Plugin\\goxlr.js'])
+        if process.poll() == None:
+            print("started")
+    except Exception as e:
+        print(e)
     
 def observe():
     event_handler = Event()
@@ -65,26 +89,20 @@ def observe():
     
 def main():
     try:
-        menu_options = (("Verify Connection", None, verifyConnection),("Reload Config", None, config.loadConfig))
-        systray = SysTrayIcon("./Assets/icon.ico", "Example tray icon", menu_options, on_quit=ex)
-        systray.start()
-        logger.info("Created system tray.")
-        obsThread = threading.Thread(target=observe)
-        obsThread.daemon = True
+        #TO DO -- Implement UI
+        obsThread = threading.Thread(target=observe, daemon=True)
         obsThread.start()
         #Try to start websocket server
         print("starting server...")
-        nodeThread = threading.Thread(target=startServer, daemon=True)
-        nodeThread.start()
+        """ nodeThread = threading.Thread(target=startServer, daemon=True)
+        nodeThread.start() """
+        startServer()
         logger.info("Listening for hotkeys...")
         print("Press ESC to stop.")
-        keyboard.wait()        
+        ui = userInterface(goXlrDir)
     except KeyboardInterrupt as e:
         logger.error(e)       
     finally:
-        systray.shutdown()
-        nodeThread.join(3)
-        obsThread.join(3)
         ex("exiting")    
 
 if __name__ == "__main__":

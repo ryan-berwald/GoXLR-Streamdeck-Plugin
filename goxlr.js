@@ -95,4 +95,7 @@ server.on("upgrade", (request, socket, head) => {
   }
 });
 server.listen(6805);
-//server.close((err) => console.log(err));
+
+//catching exceptions and closing server if it crashes instead of a graceful exit.
+process.on('uncaughtException', (err, origin) => server.close());
+process.on('SIGTERM', (err, origin) => server.close());

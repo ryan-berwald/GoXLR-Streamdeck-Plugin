@@ -1,5 +1,5 @@
 import logging
-import keyboard
+from keyboard import add_hotkey
 import toml
 import logging
 
@@ -27,4 +27,4 @@ class config:
         print(self.keys)
         print(self.profiles)
         for x in range(len(self.keys)):
-            keyboard.add_hotkey(self.keys[x], self.hotkeyFunc, args=(self.profiles[x], self.keys[x])) #<-- attach the function to hot-key    
+            add_hotkey(self.keys[x], self.hotkeyFunc, args=(self.profiles[x], self.keys[x])) #<-- attach the function to hot-key    

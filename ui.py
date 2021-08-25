@@ -1,44 +1,61 @@
+from PyQt5 import QtGui
 from PyQt5.QtGui import * 
-from PyQt5.QtWidgets import * 
-
+from PyQt5.QtWidgets import *
+from keyboard import release 
+from os import system
 class userInterface:
-    def __init__():
-        app = QApplication([])
-        app.setQuitOnLastWindowClosed(False)
+    def __init__(self, goxlrPath):
+        self.app = QApplication([])
+        self.app.setQuitOnLastWindowClosed(False)
         
         # Adding an icon
         icon = QIcon("./Assets/icon.ico")
         
         # Adding item on the menu bar
-        tray = QSystemTrayIcon()
-        tray.setIcon(icon)
-        tray.setVisible(True)
-        
+        self.tray = QSystemTrayIcon()
+        self.tray.setIcon(icon)
+        self.tray.setVisible(True)
+        self.tray.activated.connect(self.sysTrayClick)
+
         # Creating the options
-        menu = QMenu()
-        option1 = QAction("Reload Config")
-        menu.addAction(option1)
-        menu.addAction(option2)
+        self.menu = QMenu()
+        quit = QAction("Quit")
+        quit.triggered.connect(self.app.quit)
+        showInterface = QAction("Show UI")
+        showInterface.triggered.connect(self.showUI)
+        self.menu.addAction(showInterface)
+        self.menu.addAction(quit)
+        self.tray.setContextMenu(self.menu)
 
-        window = QWidget()
-        layout = QVBoxLayout()
+        self.window = QWidget()
+        layout = QGridLayout()
 
-        WsCB = QCheckBox("WebSocket Running")
-        WsCB.setEnabled(False)
+        #Status check boxes
+        vbox = QVBoxLayout()
+        self.WsCB = QCheckBox("WebSocket Running")
+        self.WsCB.setEnabled(False)
+        self.GoXLRCB = QCheckBox("GoXLR Connection")
+        self.GoXLRCB.setEnabled(False)
+        GroupBox = QGroupBox("Connection Status")
+        vbox.addWidget(self.WsCB)
+        vbox.addWidget(self.GoXLRCB)
+        GroupBox.setLayout(vbox)
+        layout.addWidget(GroupBox,0, 0)
 
-        GoXLRCB = QCheckBox("GoXLR Connection")
-        GoXLRCB.setEnabled(False)
+        #Config Button
+        confButton = QPushButton('Edit Config')
+        confButton.clicked.connect(lambda: system(goxlrPath + "config.toml"))
+        layout.addWidget(confButton,0,1)
 
-        layout.addWidget(QPushButton('Edit Config'))
-        window.setLayout(layout)
-        window.show()
 
-# To quit the app
-quit = QAction("Quit")
-quit.triggered.connect(app.quit)
-menu.addAction(quit)
-  
-# Adding options to the System Tray
-tray.setContextMenu(menu)
-  
-app.exec_()
+        self.window.setLayout(layout)
+        self.window.setWindowTitle("Hotkeys")
+        self.app.exec()
+
+    def showUI(self):
+        self.window.show()
+
+    def sysTrayClick(self, reason):
+        if reason == QSystemTrayIcon.DoubleClick:
+            self.showUI()
+

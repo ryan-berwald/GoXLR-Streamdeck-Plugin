@@ -13,6 +13,4 @@ ClientAddress="ws://localhost:6805/client="
 keys=["F13", "CTRL + B"]
 profiles=["Desk", "Game"] 
 
-[File]
-filepath="C:\\Users\\rberw\\Documents\\GoXLR-Streamdeck-Plugin\\config.toml"
 

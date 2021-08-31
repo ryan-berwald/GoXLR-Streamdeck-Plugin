@@ -45,12 +45,10 @@ def main():
     try:
         """ obsThread = threading.Thread(target=observe, daemon=True)
         obsThread.start() """
-        #Try to start websocket server
-        ########server#######
         server = Server()
         server.startServer()
         logger.info("Listening for hotkeys...")
-        connThread = threading.Thread(target=verifyConnection, daemon=True)
+        connThread = threading.Thread(target=server.verifyConnection, daemon=True)
         connThread.start()
         ui = userInterface(goXlrDir)
     except KeyboardInterrupt as e:

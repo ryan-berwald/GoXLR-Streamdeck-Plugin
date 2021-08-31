@@ -1,30 +1,55 @@
+import FileObserver
 import logging
 from keyboard import add_hotkey
 import toml
-import logging
+from watchdog.observers import Observer
+from watchdog.events import LoggingEventHandler 
 
 class config:
-    def __init__(self, _keyPressFunc, _path):
-        self.path = _path
+    def __init__(self, keyPressFunc, path, goxlrdir):
+        self.path = path
         self.rawfile = []
         self.configFile = None
         self.profiles = []
-        self.hotkeyFunc = _keyPressFunc
+        self.hotkeyFunc = keyPressFunc
         self.keys = []
-        self.loadConfig()
+        self.loadConfig(goxlrdir)
         logging.getLogger().info(f"\n\tPath: {self.path}\n\tProfiles: {self.profiles}\n\tKeys: {self.keys}")
 
-    def loadConfig(self):
+    def loadConfig(self, goXlrDir):
         try:
             self.configFile = toml.load(self.path)
         except FileNotFoundError as e:
             logging.getLogger().error(e)
-            raise e
-        self.rawfile = self.configFile["Hotkeys"]
-        print(self.rawfile)
-        self.keys = self.rawfile["keys"]
-        self.profiles = self.rawfile["profiles"]
-        print(self.keys)
-        print(self.profiles)
-        for x in range(len(self.keys)):
-            add_hotkey(self.keys[x], self.hotkeyFunc, args=(self.profiles[x], self.keys[x])) #<-- attach the function to hot-key    
+            with open(goXlrDir + 'config.toml', 'w') as file:
+                file.write("""# Define keys to be pressed in parallel array with profiles.
+# ex. keys=["F1", "F2"]
+#     profiles=["profile1", "profile2"]\n
+# This will set profile1 when you press F1 and set profile2 when press F2
+
+title = "GoXLR Streamdeck Emulator"\n
+
+[Server]
+GoXLRAddress="ws://localhost:6805/?GoXLRApp"
+ClientAddress="ws://localhost:6805/client="
+
+[Hotkeys]
+keys=["F13", "CTRL + B"]
+profiles=["Desk", "Game"] 
+""")
+        finally:
+            self.rawfile = self.configFile["Hotkeys"]
+            print(self.rawfile)
+            self.keys = self.rawfile["keys"]
+            self.profiles = self.rawfile["profiles"]
+            print(self.keys)
+            print(self.profiles)
+            for x in range(len(self.keys)):
+                add_hotkey(self.keys[x], self.hotkeyFunc, args=(self.profiles[x], self.keys[x])) #<-- attach the function to hot-key    
+
+    def observe(self):
+        event_handler = FileObserver.FileModified()
+        observer = Observer()
+        observer.schedule(event_handler, ".", recursive=True)
+        observer.start()  
+

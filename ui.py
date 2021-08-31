@@ -9,7 +9,7 @@ class userInterface:
     def __init__(self, goxlrPath):
         self.app = QApplication([])
         self.app.setQuitOnLastWindowClosed(False)
-        
+        self.window = QWidget()
         # Adding an icon
         icon = QIcon("./Assets/icon.ico")
         
@@ -24,13 +24,12 @@ class userInterface:
         quit = QAction("Quit")
         quit.triggered.connect(self.app.quit)
         showInterface = QAction("Show UI")
-        showInterface.triggered.connect(self.showUI)
+        showInterface.triggered.connect(self.window.show)
 
         self.menu.addAction(showInterface)
         self.menu.addAction(quit)
         self.tray.setContextMenu(self.menu)
 
-        self.window = QWidget()
         layout = QGridLayout()
 
         #Status check boxes

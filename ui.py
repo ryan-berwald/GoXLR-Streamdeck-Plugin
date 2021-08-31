@@ -2,8 +2,10 @@ from PyQt5 import QtGui
 from PyQt5.QtGui import * 
 from PyQt5.QtWidgets import *
 from keyboard import release 
-from os import system
+from os import stat, system
 class userInterface:
+    CHECKMARK = "\u2705"
+    CROSSMARK = "\u274c"
     def __init__(self, goxlrPath):
         self.app = QApplication([])
         self.app.setQuitOnLastWindowClosed(False)
@@ -23,6 +25,7 @@ class userInterface:
         quit.triggered.connect(self.app.quit)
         showInterface = QAction("Show UI")
         showInterface.triggered.connect(self.showUI)
+
         self.menu.addAction(showInterface)
         self.menu.addAction(quit)
         self.tray.setContextMenu(self.menu)
@@ -32,13 +35,13 @@ class userInterface:
 
         #Status check boxes
         vbox = QVBoxLayout()
-        self.WsCB = QCheckBox("WebSocket Running")
-        self.WsCB.setEnabled(False)
-        self.GoXLRCB = QCheckBox("GoXLR Connection")
-        self.GoXLRCB.setEnabled(False)
+        self.WsLabel = QLabel(self.CROSSMARK + " WebSocket Status")
+        self.GoXLRLabel = QLabel(self.CROSSMARK + " GoXLR Status")
+        self.ServerLabel = QLabel(self.CROSSMARK + " Server Status")
         GroupBox = QGroupBox("Connection Status")
-        vbox.addWidget(self.WsCB)
-        vbox.addWidget(self.GoXLRCB)
+        vbox.addWidget(self.WsLabel)
+        vbox.addWidget(self.GoXLRLabel)
+        vbox.addWidget(self.ServerLabel)
         GroupBox.setLayout(vbox)
         layout.addWidget(GroupBox,0, 0)
 
@@ -50,12 +53,8 @@ class userInterface:
 
         self.window.setLayout(layout)
         self.window.setWindowTitle("Hotkeys")
-        self.app.exec()
-
-    def showUI(self):
-        self.window.show()
+        self.app.exec()        
 
     def sysTrayClick(self, reason):
         if reason == QSystemTrayIcon.DoubleClick:
-            self.showUI()
-
+            self.window.show()

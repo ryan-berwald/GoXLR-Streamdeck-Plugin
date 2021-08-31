@@ -1,4 +1,4 @@
-infi.systray
+pyqt5
 keyboard
 websocket
 watchdog

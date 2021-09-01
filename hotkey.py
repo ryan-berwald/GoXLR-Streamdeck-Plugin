@@ -30,7 +30,6 @@ def keyPress(profile, keys):
         ws = websocket.WebSocket()
         try:
             ws.connect("ws://localhost:6805/client")
-
         except Exception as e:
             logger.error(e)
         logger.info(f'Sending profile change request {profile}')
@@ -43,14 +42,16 @@ def keyPress(profile, keys):
     
 def main():
     try:
+        ui = userInterface(goXlrDir)
         """ obsThread = threading.Thread(target=observe, daemon=True)
         obsThread.start() """
         server = Server()
-        server.startServer()
+        server.startServer(ui)
         logger.info("Listening for hotkeys...")
-        connThread = threading.Thread(target=server.verifyConnection, daemon=True)
+        connThread = threading.Thread(target=server.verifyConnection, daemon=True, args={ui})
         connThread.start()
-        ui = userInterface(goXlrDir)
+        ui.startUI()
+
     except KeyboardInterrupt as e:
         logger.error(e)       
     finally:

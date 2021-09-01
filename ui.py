@@ -51,9 +51,11 @@ class userInterface:
 
 
         self.window.setLayout(layout)
-        self.window.setWindowTitle("Hotkeys")
-        self.app.exec()        
+        self.window.setWindowTitle("Hotkeys")       
 
     def sysTrayClick(self, reason):
         if reason == QSystemTrayIcon.DoubleClick:
             self.window.show()
+    
+    def startUI(self):
+        self.app.exec()

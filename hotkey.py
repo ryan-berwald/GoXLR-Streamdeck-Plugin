@@ -1,3 +1,5 @@
+from time import sleep
+import keyboard
 import websocket
 
 import threading
@@ -6,7 +8,7 @@ from subprocess import Popen, PIPE
 from config_class import config
 from sys import exit as ex
 from os import mkdir, path
-from pathlib import Path
+from pathlib import Path, WindowsPath
 from ui import userInterface
 from Server import Server
 
@@ -22,34 +24,32 @@ except FileNotFoundError:
     logging.basicConfig(format='%(asctime)s - %(process)d - %(levelname)s - %(message)s', level=logging.INFO, datefmt='%d-%b-%y %H:%M:%S', filename=goXlrDir + 'logs\\app.log', filemode='w')    
 finally:
     logger = logging.getLogger()
-    
-def keyPress(profile, keys):
+
+if not Path.is_file(Path(f'{goXlrDir}logs\\server.log')):
+    with open(goXlrDir + "\\logs\\server.log", "w") as file:
+        logger.info("Creating server log file")
+        file.close()
+
+def keyPress(profile, keys, server):
     print("hotkey pressed")
     logger.info(f'hotkey pressed {profile}; {keys}')
     try:
-        ws = websocket.WebSocket()
-        try:
-            ws.connect("ws://localhost:6805/client")
-        except Exception as e:
-            logger.error(e)
-        logger.info(f'Sending profile change request {profile}')
-        ws.send(f'changeprofile={profile}')
-        #logger.info(ws.recv())
+        print(server.ws.url)
+        server.ws.send(f'changeprofile={profile}')
+        print("sent data")
     except Exception as e:
         logger.error(e)
-    finally:
-        ws.close()
     
 def main():
     try:
         ui = userInterface(goXlrDir)
         """ obsThread = threading.Thread(target=observe, daemon=True)
         obsThread.start() """
-        server = Server()
-        server.startServer(ui)
+        server = Server(ui)
         logger.info("Listening for hotkeys...")
-        connThread = threading.Thread(target=server.verifyConnection, daemon=True, args={ui})
-        connThread.start()
+        conf = config(keyPress, goXlrDir + "\\config.toml", goXlrDir, server)
+        t = threading.Thread(target=lambda: keyboard.wait(), daemon=True)
+        t.start()
         ui.startUI()
 
     except KeyboardInterrupt as e:

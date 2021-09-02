@@ -3,52 +3,69 @@ const ws = require("ws"); //websocket
 const fs = require("fs");
 const pino = require("pino");
 const PORT = 6805;
-const logdir = require("os").homedir() + "/logs";
+const logdir = require("os").homedir() + "\\Documents\\GoXLRPlugin\\logs";
 //create logger that prints out to a file named server.log
+
+
 const logger = pino(
   { level: process.env.LOG_LEVEL || "info" },
-  pino.destination(logdir + "server.log")
+  pino.destination(logdir + "\\server.log")
 );
 
-fs.truncate(logdir + "/server.log", 0, function () {
+/* fs.truncate(logdir + "\\server.log", 0, function () {
   console.log("file reset");
-});
+}); */
 
 const changeprofile = require("./goxlrdocs/changeprofile.json");
 const fetchprofiles = require("./goxlrdocs/fetchprofiles.json");
-let connStatus ={ 
+let connStatus = {
   'Client': false,
-  'GoXLR' : false,
+  'GoXLR': false,
 };
 
 let goXLRSocket;
+let clientSocket; 
 
 const { URL } = require("url");
 const { json } = require("express");
 const server = http.createServer();
 // Set up a headless websocket server
 const ws1 = new ws.Server({
-  noServer: true,
+  noServer: true
 });
 
 const ws2 = new ws.Server({ noServer: true });
 
-//GoXLR setting instantiation
+//GoXLR socket
 ws1.on("connection", (socket) => {
   goXLRSocket = socket;
   connStatus.GoXLR = true;
   logger.info("GoXLR Connected.");
+  logger.info(connStatus + "sending to client")
+  if(connStatus.Client == true) {
+    clientSocket.send(JSON.stringify(connStatus))
+  }
 });
 
-ws1.on("close", (socket) =>{
+ws1.on("close", (socket) => {
   connStatus.goXLR = false;
+  logger.info(connStatus);
   logger.info("GoXLR disconnected.");
+});
+
+ws2.on("connection", (socket) => {
+  logger.info("Client connected")
+  connStatus.Client = true;
+  clientSocket = socket;
+  socket.send(JSON.stringify(connStatus));
 });
 
 //Client websocket and emitting commands to GoXLRSocket based on received data
 ws2.on("connection", (socket) => {
-  logger.info("Client Connected!");
+  logger.info("Client connected")
   connStatus.Client = true;
+  clientSocket = socket;
+  socket.send(JSON.stringify(connStatus));
   socket.on("message", (message) => {
     logger.info(message);
     switch (message.toLowerCase().substr(0, message.indexOf("="))) {
@@ -94,8 +111,9 @@ ws2.on("connection", (socket) => {
 });
 
 ws2.on("close", (socket) => {
-  logger.info("Client disconnected!");
   connStatus.Client = false;
+  socket.send(JSON.stringify(connStatus));
+  logger.info(connStatus);
 });
 
 // `server` is a vanilla Node.js HTTP server, so use

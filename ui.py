@@ -34,8 +34,8 @@ class userInterface:
 
         #Status check boxes
         vbox = QVBoxLayout()
-        self.WsLabel = QLabel(self.CROSSMARK + " WebSocket Status")
-        self.GoXLRLabel = QLabel(self.CROSSMARK + " GoXLR Status")
+        self.WsLabel = QLabel(self.CROSSMARK + " Client Connection Status")
+        self.GoXLRLabel = QLabel(self.CROSSMARK + " GoXLR Connection Status")
         self.ServerLabel = QLabel(self.CROSSMARK + " Server Status")
         GroupBox = QGroupBox("Connection Status")
         vbox.addWidget(self.WsLabel)

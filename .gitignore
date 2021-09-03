@@ -1,5 +1,7 @@
 node_modules/
+__pycache__
+build/
+dist
 *.log
 *.exe
 *.spec
-__pycache__

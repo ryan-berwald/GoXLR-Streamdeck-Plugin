@@ -30,19 +30,19 @@ class Server:
 
     def updateUI(self, wsStatus, goXLRStatus, serverStatus) -> None:
         if wsStatus == True:
-            self.ui.WsLabel.setText(self.ui.CHECKMARK + " Client Connection Status")
+            self.ui.clientStatus.set(self.ui.CHECKMARK + " Client Connection Status")
         else:
-            self.ui.WsLabel.setText(self.ui.CROSSMARK + " Client Connection Status")
+            self.ui.clientStatus.set(self.ui.CROSSMARK + " Client Connection Status")
 
         if goXLRStatus == True:
-            self.ui.GoXLRLabel.setText(self.ui.CHECKMARK + " GoXLR Connection Status")
+            self.ui.goXLRStatus.set(self.ui.CHECKMARK + " GoXLR Connection Status")
         else:
-            self.ui.GoXLRLabel.setText(self.ui.CROSSMARK + " GoXLR Connection Status")
+            self.ui.goXLRStatus.set(self.ui.CROSSMARK + " GoXLR Connection Status")
 
         if serverStatus == True:
-            self.ui.ServerLabel.setText(self.ui.CHECKMARK + " Server Status")
+            self.ui.serverStatus.set(self.ui.CHECKMARK + " Server Connection Status")
         else:
-            self.ui.ServerLable.setText(self.ui.CROSSMARK + " Server Connection Status")
+            self.ui.serverStatus.set(self.ui.CHECKMARK + " Server Connection Status")
 
     
     def on_message(self, ws, message):

@@ -1,14 +1,12 @@
-from time import sleep
 import keyboard
 import threading
 import logging
 from config_class import config
-from sys import exit as ex
-from os import mkdir, path, truncate
+from os import mkdir, path
+import os
 from pathlib import Path
 import uiTKinter
 from Server import Server
-
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -43,7 +41,6 @@ def keyPress(profile, keys, server):
 
 def main():     
     ui = uiTKinter.ui(goXlrDir)
-    #uiThread = threading.Thread(target=ui.startLoop, daemon=True)
     server = Server(ui)
     logger.info("Listening for hotkeys...")
     conf = config(keyPress, goXlrDir + "\\config.toml", goXlrDir, server)
@@ -61,9 +58,8 @@ def main():
     obsThread.start()
     t = threading.Thread(target=lambda: keyboard.wait(), daemon=True)
     t.start()
-    #uiThread.start()
     ui.startLoop()
-
+    os._exit(1)
 if __name__ == "__main__":
     main()
 

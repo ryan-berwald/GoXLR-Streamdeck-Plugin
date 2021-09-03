@@ -6,7 +6,7 @@ from config_class import config
 from sys import exit as ex
 from os import mkdir, path, truncate
 from pathlib import Path
-from ui import userInterface
+import uiTKinter
 from Server import Server
 
 from watchdog.observers import Observer
@@ -41,16 +41,9 @@ def keyPress(profile, keys, server):
     except Exception as e:
         logger.error(e)
 
-
-
-
-
-  
-
-def main():
-     
-                
-    ui = userInterface(goXlrDir)
+def main():     
+    ui = uiTKinter.ui(goXlrDir)
+    #uiThread = threading.Thread(target=ui.startLoop, daemon=True)
     server = Server(ui)
     logger.info("Listening for hotkeys...")
     conf = config(keyPress, goXlrDir + "\\config.toml", goXlrDir, server)
@@ -68,7 +61,8 @@ def main():
     obsThread.start()
     t = threading.Thread(target=lambda: keyboard.wait(), daemon=True)
     t.start()
-    ui.startUI()
+    #uiThread.start()
+    ui.startLoop()
 
 if __name__ == "__main__":
     main()

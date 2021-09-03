@@ -48,9 +48,4 @@ profiles=["Desk", "Game"]
             for x in range(len(self.keys)):
                 add_hotkey(self.keys[x], self.hotkeyFunc, args=(self.profiles[x], self.keys[x], self.server)) #<-- attach the function to hot-key    
 
-"""     def observe(self):
-        event_handler = FileObserver.FileModified()
-        observer = Observer()
-        observer.schedule(event_handler, ".", recursive=True)
-        observer.start()   """
 

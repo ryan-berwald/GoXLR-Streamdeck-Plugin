@@ -1,4 +1,3 @@
-from FileObserver import FileModifiedHandler
 from time import sleep
 import keyboard
 import threading

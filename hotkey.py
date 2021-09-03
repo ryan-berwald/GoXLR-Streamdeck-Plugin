@@ -30,12 +30,9 @@ if not Path.is_file(Path(f'{goXlrDir}logs\\server.log')):
         file.close()
 
 def keyPress(profile, keys, server):
-    print("hotkey pressed")
     logger.info(f'hotkey pressed {profile}; {keys}')
     try:
-        print(server.ws.url)
         server.ws.send(f'changeprofile={profile}')
-        print("sent data")
     except Exception as e:
         logger.error(e)
 
@@ -46,7 +43,6 @@ def main():
     conf = config(keyPress, goXlrDir + "\\config.toml", goXlrDir, server)
     class Event(FileSystemEventHandler):
         def dispatch(self, event):
-            print(event.src_path)
             if event.src_path == goXlrDir + "config.toml" and event.event_type == "modified": 
                 conf.loadConfig(goXlrDir)
     def observe(conf):

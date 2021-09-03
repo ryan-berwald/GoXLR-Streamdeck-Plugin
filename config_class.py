@@ -39,11 +39,8 @@ profiles=["Desk", "Game"]
 """)
         finally:
             self.rawfile = self.configFile["Hotkeys"]
-            print(self.rawfile)
             self.keys = self.rawfile["keys"]
             self.profiles = self.rawfile["profiles"]
-            print(self.keys)
-            print(self.profiles)
             for x in range(len(self.keys)):
                 add_hotkey(self.keys[x], self.hotkeyFunc, args=(self.profiles[x], self.keys[x], self.server)) #<-- attach the function to hot-key    
 

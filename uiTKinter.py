@@ -45,6 +45,7 @@ class ui:
     # Define a function for quit the self.window
     def quit_window(self, icon, item):
         icon.stop()
+        self.win.quit()
         self.win.destroy()
 
     # Define a function to show the self.window again

@@ -1,4 +1,3 @@
-import FileObserver
 import logging
 from keyboard import add_hotkey
 import toml

@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 from keyboard import add_hotkey
 import toml
 from watchdog.observers import Observer
@@ -8,11 +9,12 @@ class config:
     def __init__(self, keyPressFunc, path, goxlrdir, server):
         self.path = path
         self.rawfile = []
-        self.configFile = None
+        self.configFile = ''
         self.profiles = []
         self.hotkeyFunc = keyPressFunc
         self.keys = []
         self.server = server
+        self.installDir = ""
         self.loadConfig(goxlrdir)
         logging.getLogger().info(f"\n\tPath: {self.path}\n\tProfiles: {self.profiles}\n\tKeys: {self.keys}")
 
@@ -36,11 +38,18 @@ ClientAddress="ws://localhost:6805/client="
 [Hotkeys]
 keys=["F13", "CTRL + B"]
 profiles=["Desk", "Game"] 
+
+[InstallDirectory]
+FullPath="C:\\Program Files (x86)\\TC-Helicon\\GOXLR"
+
+
 """)
         finally:
             self.rawfile = self.configFile["Hotkeys"]
             self.keys = self.rawfile["keys"]
             self.profiles = self.rawfile["profiles"]
+            self.rawfile = self.configFile["InstallDirectory"]
+            self.installDir = self.rawfile["FullPath"]
             for x in range(len(self.keys)):
                 add_hotkey(self.keys[x], self.hotkeyFunc, args=(self.profiles[x], self.keys[x], self.server)) #<-- attach the function to hot-key    
 

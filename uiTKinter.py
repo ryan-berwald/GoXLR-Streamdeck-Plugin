@@ -1,11 +1,12 @@
 # Import the required libraries
 import tkinter as tk
 from tkinter import filedialog
+from typing import final
 from pystray import MenuItem as item
 import pystray
-from PIL import Image, ImageTk
+from PIL import Image
 from os import system, getcwd
-
+import win32com.client
 
 class ui:
     CHECKMARK = "\u2705"
@@ -67,22 +68,13 @@ class ui:
     def start_with_windows(self):
         while True: 
             goXLRExe = filedialog.askopenfile(initialdir=getcwd())
-            
-
-
-            putItHere = str("")
-
-
-
-
-
-            print(goXLRExe)
-            if goXLRExe.name.split("/")[len(goXLRExe.name.split("/"))-1] == "GoXLR App.exe":
-                import winreg;
-                key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                r'SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run', 0,
-                winreg.KEY_SET_VALUE); winreg.SetValueEx(key, 'GoXLRPlugin', 0,
-                winreg.REG_SZ, f'{goXLRExe.name}'); # file_path is path of file after coping it
-
+            try:
+                ws = win32com.client.Dispatch("wscript.shell")
+                shortcut = ws.CreateShortCut("C:\\Users\\rberw\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\GoXLRApp.lnk")
+                shortcut.TargetPath = "C:\\Users\\rberw\\Documents\\GoXLR-Streamdeck-Plugin\\hotkey.pyw"
+                shortcut.Save()
+            except Exception as exception:
+                error = 'Failed to deploy shortcut! {}\nArgs: {}, {}, {}'.format(exception, name, link, destination)
+                print(error)
+            finally:
                 break
-    

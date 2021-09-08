@@ -1,22 +1,23 @@
 # Import the required libraries
+from sys import getwindowsversion
 import tkinter as tk
-from tkinter import filedialog
-from typing import final
+from tkinter import filedialog, IntVar
+from pathlib import Path
 from pystray import MenuItem as item
 import pystray
 from PIL import Image
-from os import system, getcwd
+from os import system, getcwd, remove
 import win32com.client
 
 class ui:
     CHECKMARK = "\u2705"
     CROSSMARK = "\u274c"
-    def __init__(self, goXlrDir) -> None:
+    def __init__(self, goXlrDir, conf) -> None:
         self.goXlrDir = goXlrDir
         self.exeDir = ""
         # Create an instance of tkinter frame or self.window
         self.win=tk.Tk()
-
+        self.conf = conf
         # Setting text vars
         self.clientStatus = tk.StringVar(value=self.CROSSMARK + " Client Connection Status")
         self.goXLRStatus = tk.StringVar(value=self.CROSSMARK + " GoXLR Connection Status")
@@ -33,9 +34,14 @@ class ui:
         self.frm_Status.pack()
 
         #Creating frame and packing buttons
+        self.cb = IntVar()
         self.frm_Buttons = tk.Frame()
         self.btn_EditConfig = tk.Button(text="Edit Config", master=self.frm_Buttons, command=lambda: system(goXlrDir + "config.toml"))
-        self.chk_StartWindows = tk.Checkbutton(text="Start with Windows", master=self.frm_Buttons, command=self.start_with_windows )
+        self.chk_StartWindows = tk.Checkbutton(text="Start with Windows", master=self.frm_Buttons, command=self.start_with_windows, variable=self.cb, onvalue=1, offvalue=0 )
+        
+        if self.conf.start_with_windows:
+            self.chk_StartWindows.select()
+        
         self.btn_EditConfig.pack()
         self.chk_StartWindows.pack()
         self.frm_Buttons.pack()
@@ -49,7 +55,6 @@ class ui:
     # Define a function for quit the self.window
     def quit_window(self, icon, item):
         icon.stop()
-        self.win.quit()
         self.win.destroy()
 
     # Define a function to show the self.window again
@@ -66,15 +71,30 @@ class ui:
         icon.run()
 
     def start_with_windows(self):
-        while True: 
-            goXLRExe = filedialog.askopenfile(initialdir=getcwd())
+        if self.cb.get() == 1:
+            print("on")
             try:
                 ws = win32com.client.Dispatch("wscript.shell")
-                shortcut = ws.CreateShortCut("C:\\Users\\rberw\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\GoXLRApp.lnk")
-                shortcut.TargetPath = "C:\\Users\\rberw\\Documents\\GoXLR-Streamdeck-Plugin\\hotkey.pyw"
-                shortcut.Save()
+                exe_Shortcut = ws.CreateShortCut(f"{Path.home()}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\GoXLRApp.lnk")
+                server_Shortcut = ws.CreateShortCut(f"{Path.home()}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\GoXLRHotkey.lnk")
+
+                if Path.is_file(Path("C:\\Program Files (x86)\\TC-Helicon\\GOXLR\\GoXLR App.exe")):
+                    exe_Shortcut.TargetPath = "C:\\Program Files (x86)\\TC-Helicon\\GOXLR\\Go XLR App.exe"
+                else:
+                    exe_Shortcut.TargetPath = filedialog.askopenfile(initialdir="C:\\Program Files (x86)\\TC-Helicon\\GOXLR\\",initialfile="Go XLR App.exe")
+
+                server_Shortcut.TargetPath = f"{getcwd()}\\hotkey.exe"
+                exe_Shortcut.Save()
+                server_Shortcut.Save()
+                self.conf.start_with_windows = True
             except Exception as exception:
-                error = 'Failed to deploy shortcut! {}\nArgs: {}, {}, {}'.format(exception, name, link, destination)
-                print(error)
+                print(exception)
+        elif self.cb.get() == 0:
+            print("off")
+            try:
+                remove("C:\\Users\\rberw\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\GoXLRApp.lnk")
+            except FileNotFoundError as e:
+                pass
             finally:
-                break
+                self.conf.start_with_windows = False
+        

@@ -1,29 +1,24 @@
 import logging
+from os import path
 from typing import Any
-from keyboard import add_hotkey
 import toml
 from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler 
-
+from pathlib import Path
 class config:
-    def __init__(self, keyPressFunc, path, goxlrdir, server):
-        self.path = path
-        self.rawfile = []
-        self.configFile = ''
-        self.profiles = []
+    def __init__(self, keyPressFunc, goxlrdir):
+        self.configFilePath = Path(goxlrdir + "config.toml")
+        self.rawfile = self.loadConfig()
+        self.profiles = self.rawfile["Hotkeys"]["profiles"]
         self.hotkeyFunc = keyPressFunc
-        self.keys = []
-        self.server = server
-        self.installDir = ""
-        self.loadConfig(goxlrdir)
-        logging.getLogger().info(f"\n\tPath: {self.path}\n\tProfiles: {self.profiles}\n\tKeys: {self.keys}")
+        self.keys = self.rawfile["Hotkeys"]["keys"]
+        self.installDir = self.rawfile["InstallDirectory"]["FullPath"]
+        self.start_with_windows = self.rawfile["StartSettings"]["startwithwindows"]
 
-    def loadConfig(self, goXlrDir):
-        try:
-            self.configFile = toml.load(self.path)
-        except FileNotFoundError as e:
+    def loadConfig(self):
+        if not Path.is_file(Path(self.configFilePath)):
             logging.getLogger().error("Config file not found, creating sample now")
-            with open(goXlrDir + 'config.toml', 'w') as file:
+            with open(self.configFilePath, 'w') as file:
                 file.write("""# Define keys to be pressed in parallel array with profiles.
 # ex. keys=["F1", "F2"]
 #     profiles=["profile1", "profile2"]\n
@@ -40,17 +35,21 @@ keys=["F13", "CTRL + B"]
 profiles=["Desk", "Game"] 
 
 [InstallDirectory]
-FullPath="C:\\Program Files (x86)\\TC-Helicon\\GOXLR"
+FullPath="C:\\\Program Files (x86)\\\TC-Helicon\\\GOXLR"
 
+[StartSettings]
+startwithwindows=false
 
 """)
-        finally:
-            self.rawfile = self.configFile["Hotkeys"]
-            self.keys = self.rawfile["keys"]
-            self.profiles = self.rawfile["profiles"]
-            self.rawfile = self.configFile["InstallDirectory"]
-            self.installDir = self.rawfile["FullPath"]
-            for x in range(len(self.keys)):
-                add_hotkey(self.keys[x], self.hotkeyFunc, args=(self.profiles[x], self.keys[x], self.server)) #<-- attach the function to hot-key    
+        with open(self.configFilePath, "r") as f:
+            return toml.load(f)
 
-
+    def save_Config(self):
+        print("saving on exit")
+        self.rawfile["Hotkeys"]["keys"] = self.keys
+        self.rawfile["Hotkeys"]["profiles"] = self.profiles
+        self.rawfile["StartSettings"]["startwithwindows"] = self.start_with_windows
+        print(self.rawfile)
+        with open(self.configFilePath, "w") as f:
+            toml.dump(self.rawfile, f)
+            f.close()

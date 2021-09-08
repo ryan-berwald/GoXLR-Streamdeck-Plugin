@@ -30,6 +30,11 @@ jobs:
         pip install -r requirements.txt
     - name: build exe
       run: |
-        pwd
-        ls
         pyinstaller --onedir hotkey.pyw --add-data "./goxlr.js:./" --add-data "./goxlrdocs:./goxlrdocs" --add-data "./Assets:./Assets" -y
+    - name: package into zip
+    - uses: thedoctor0/zip-release@master
+      with:
+        type: 'zip'
+        filename: 'release.zip'
+        exclusions: '*.git* /*node_modules/* .editorconfig'
+        path: './dist/hotkey'

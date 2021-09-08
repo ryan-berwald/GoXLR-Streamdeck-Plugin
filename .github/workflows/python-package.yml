@@ -31,4 +31,5 @@ jobs:
     - name: build exe
       run: |
         pwd
+        ls
         pyinstaller --onedir .\hotkey.pyw --add-data "goxlr.js;." --add-data "goxlrdocs;./goxlrdocs" --add-data "Assets;./Assets" -y

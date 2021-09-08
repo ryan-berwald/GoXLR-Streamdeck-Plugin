@@ -1,4 +1,5 @@
-infi.systray
+pyinstaller
+pystray
 keyboard
 websocket
 watchdog

@@ -72,7 +72,6 @@ class ui:
 
     def start_with_windows(self):
         if self.cb.get() == 1:
-            print("on")
             try:
                 ws = win32com.client.Dispatch("wscript.shell")
                 exe_Shortcut = ws.CreateShortCut(f"{Path.home()}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\GoXLRApp.lnk")
@@ -90,7 +89,6 @@ class ui:
             except Exception as exception:
                 print(exception)
         elif self.cb.get() == 0:
-            print("off")
             try:
                 remove("C:\\Users\\rberw\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\GoXLRApp.lnk")
             except FileNotFoundError as e:

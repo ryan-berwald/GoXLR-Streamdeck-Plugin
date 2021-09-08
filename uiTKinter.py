@@ -5,6 +5,7 @@ from tkinter import filedialog, IntVar
 from pathlib import Path
 from pystray import MenuItem as item
 import pystray
+import pystray._win32
 from PIL import Image
 from os import system, getcwd, remove
 import win32com.client

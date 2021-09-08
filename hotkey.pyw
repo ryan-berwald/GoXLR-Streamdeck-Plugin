@@ -3,7 +3,6 @@ import threading
 import logging
 from config_class import config
 from os import mkdir, path
-import os
 from pathlib import Path
 import uiTKinter
 from Server import Server

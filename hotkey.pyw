@@ -9,6 +9,7 @@ import uiTKinter
 from Server import Server
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+import atexit
 
 goXlrDir = str(Path.home()) + '\\Documents\\GoXLRPlugin\\'
 
@@ -37,10 +38,13 @@ def keyPress(profile, keys, server):
         logger.error(e)
 
 def main():     
-    ui = uiTKinter.ui(goXlrDir)
+    conf = config(keyPress, goXlrDir)
+    ui = uiTKinter.ui(goXlrDir, conf)
     server = Server(ui)
-    logger.info("Listening for hotkeys...")
-    conf = config(keyPress, goXlrDir + "\\config.toml", goXlrDir, server)
+    for x in range(len(conf.keys)):
+        keyboard.add_hotkey(conf.keys[x], conf.hotkeyFunc, args=(conf.profiles[x], conf.keys[x], server)) #<-- attach the function to hot-key
+    
+    logger.info(f"\n\tPath: {conf.configFilePath}\n\tProfiles: {conf.profiles}\n\tKeys: {conf.keys}")
     class Event(FileSystemEventHandler):
         def dispatch(self, event):
             if event.src_path == goXlrDir + "config.toml" and event.event_type == "modified": 
@@ -52,10 +56,14 @@ def main():
         observer.start()
     obsThread = threading.Thread(target=lambda: observe(conf), daemon=True)
     obsThread.start()
+    logger.info("Listening for hotkeys...")
     t = threading.Thread(target=lambda: keyboard.wait(), daemon=True)
     t.start()
+    atexit.register(conf.save_Config)
     ui.startLoop()
-    os._exit(1)
+
+    server.ws.close()
+    
 if __name__ == "__main__":
     main()
 

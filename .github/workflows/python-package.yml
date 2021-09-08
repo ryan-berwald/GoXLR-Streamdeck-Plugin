@@ -29,6 +29,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: build exe
+      working-directory: ./
       run: |
-        working-directory: ./
         pyinstaller --onedir .\hotkey.pyw --add-data "goxlr.js;." --add-data "goxlrdocs;./goxlrdocs" --add-data "Assets;./Assets" -y

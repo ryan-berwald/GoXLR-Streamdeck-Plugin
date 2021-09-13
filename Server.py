@@ -1,4 +1,4 @@
-from subprocess import Popen
+from subprocess import run 
 import websocket 
 import logging
 from shutil import which
@@ -22,7 +22,7 @@ class Server:
 
     def startServer(self) -> None:
         try:
-            process = Popen([which("node"), './goxlr.js'])
+            process = run([which("node"), './goxlr.js'], shell=True)
             if process.poll() == None:
                 self.serverStarted = True
         except Exception as e:

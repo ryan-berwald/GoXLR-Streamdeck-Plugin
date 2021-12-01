@@ -1,9 +1,8 @@
 # Import the required libraries
-from sys import getwindowsversion
 import tkinter as tk
 from tkinter import filedialog, IntVar
 from pathlib import Path
-from pystray import MenuItem as item
+from pystray import MenuItem as menuItem
 import pystray
 import pystray._win32
 from PIL import Image
@@ -67,7 +66,7 @@ class ui:
     def hide_window(self):
         self.win.withdraw()
         image=Image.open("./Assets/icon.ico")
-        menu=(item('Show UI', self.show_window), item('Quit', self.quit_window))
+        menu=(menuItem('Show UI', self.show_window), menuItem('Quit', self.quit_window))
         icon=pystray.Icon("name", image, "My System Tray Icon", menu)
         icon.run()
 

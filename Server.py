@@ -21,7 +21,6 @@ class Server:
             
 
     def startServer(self) -> None:
-        ####################ERROR HERE##################
         try:
             process = Popen([which("node"), './goxlr.js'])
             if process.poll() == None:

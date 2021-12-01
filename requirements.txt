@@ -1,5 +1,7 @@
 pyinstaller
 pystray
 keyboard
-websocket
 watchdog
+pypiwin32
+toml
+websocket-client

@@ -21,12 +21,13 @@ class Server:
             
 
     def startServer(self) -> None:
+        ####################ERROR HERE##################
         try:
             process = Popen([which("node"), './goxlr.js'])
             if process.poll() == None:
                 self.serverStarted = True
         except Exception as e:
-            print(e)
+            print("Server error" + str(e))
 
     def updateUI(self, wsStatus, goXLRStatus, serverStatus) -> None:
         if wsStatus == True:

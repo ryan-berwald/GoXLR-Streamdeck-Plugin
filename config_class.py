@@ -1,5 +1,4 @@
 import logging
-from os import path
 from typing import Any
 import toml
 from watchdog.observers import Observer
@@ -45,11 +44,9 @@ startwithwindows=false
             return toml.load(f)
 
     def save_Config(self):
-        print("saving on exit")
         self.rawfile["Hotkeys"]["keys"] = self.keys
         self.rawfile["Hotkeys"]["profiles"] = self.profiles
         self.rawfile["StartSettings"]["startwithwindows"] = self.start_with_windows
-        print(self.rawfile)
         with open(self.configFilePath, "w") as f:
             toml.dump(self.rawfile, f)
             f.close()
